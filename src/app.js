@@ -28,6 +28,7 @@ import { ExtractJwt as ExtractJwt } from 'passport-jwt';
 
 import UserManager from './dao/classes/userManagerMongo.js';
 import CartManager from './dao/classes/cartManagerMongo.js';
+import UserDTO from './dto/user.dto.js';
 
 const app = express();
 const PORT = process.env.PORT || 8080
@@ -132,7 +133,9 @@ if (!user || user.password !== password){
 //// import token from ./config/token.config.js
 
 const token = generateAndSetToken (res,email,password);
-res.json ({token,user:{email: user.email, rol: user.rol }});
+//DTO//
+const userDTO =new UserDTO (user.email, user.rol)
+res.json ({token,user: userDTO});
   
 });
 
