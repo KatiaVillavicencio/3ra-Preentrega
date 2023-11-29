@@ -34,9 +34,10 @@ export const authorization= (role) => {
 }
 export const transport= nodemailer.createTransport({
     service:'gmail',
-    port:8080,
+    port:587,
     auth:{
         user:'katiamvv5@gmail.com',
-        pass:'xxx'
+        pass:'tcgm apwy anop bnnh'
+
     }
 })

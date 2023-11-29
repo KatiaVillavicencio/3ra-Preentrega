@@ -1,4 +1,4 @@
-import TicketDTO from "../dao/DTOs/ticket.dto.js";
+import TicketDTO from "../dto/ticket.dto.js";
 
 export default class TicketRepository {
     constructor(dao) {

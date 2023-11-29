@@ -19,16 +19,18 @@ import userRouter from './routers/user.router.js';
 //socket.io
 import socketProducts from "./listeners/socketProducts.js"
 import socketChat from './listeners/socketChat.js';
+import socketEmail from './listeners/socketEmail.js';
 
 //Jwt/
- 
 import {generateAndSetToken} from "./config/token.config.js"
 import { Strategy as JwtStrategy } from 'passport-jwt';
 import { ExtractJwt as ExtractJwt } from 'passport-jwt';
 
 import UserManager from './dao/classes/userManagerMongo.js';
 import CartManager from './dao/classes/cartManagerMongo.js';
+//DTO
 import UserDTO from './dto/user.dto.js';
+import ProductManager from './dao/classes/productManagerMongo.js';
 
 const app = express();
 const PORT = process.env.PORT || 8080
@@ -51,6 +53,7 @@ const httpServer=app.listen(PORT,()=>{
 })
  const users = new UserManager
  const carts = new CartManager
+ const products = new ProductManager
 
 //connect session login//
 app.use (configSession);
@@ -80,109 +83,67 @@ initializePassword();
 app.use (passport.initialize());
 app.use (passport.session());
 
-//rutas
-app.use('/api/products', routerP)
-app.use('/api/carts', routerC)
-app.use('/', routerV);
-app.use('/api/sessions',userRouter)
 
 //socket server
 const socketServer = new Server(httpServer)
 socketProducts(socketServer)
 socketChat(socketServer)
+socketEmail(socketServer)
 
-//Products view y login session//
+//Rutas
+app.use('/', routerV); //view//
+app.use("api/products", routerP)
+app.use("api/carts", routerC)
+app.use("/users", userRouter)
+//app.use('/api/sessions',userRouter)//
+//app.use("/tickets", ticketsRouter)//
 
-//Ingreso Products  http:localhost:8080/products
 
-app.get("/products", async (req, res) => {
-    if (!req.session.emailUsuario) 
-    {
-        return res.redirect("/login")
-    }
-    let allProducts  = await product.getProducts()
-    allProducts = allProducts.map(product => product.toJSON());
-    res.render("viewProducts", {
-        title: "Vista Productos",
-        products : allProducts,
-        email: req.session.emailUsuario,
-        rol: req.session.rolUsuario,
-        algo: req.session.algo,
-    });
-})
-app.get("/carts/:cid", async (req, res) => {
-    let id = req.params.cid
-    let allCarts  = await carts.getCartWithProducts(id)
-    res.render("viewCart", {
-        title: "Vista Carro",
-        carts : allCarts
-    });
-})
-
-//POST//
-
-//autenticacion
+//Front
 app.post("/login", async (req, res) => {
-const {email, password}= req.body;
-const emailTofind = email;
-const user = await users.findEmail ({email: emailTofind});
-
-if (!user || user.password !== password){
-    return res.status(401).json ({message: " error al autentificar"})
-}
-//// import token from ./config/token.config.js
-
-const token = generateAndSetToken (res,email,password);
-//DTO//
-const userDTO =new UserDTO (user.email, user.rol)
-res.json ({token,user: userDTO});
-  
-});
-
-app.post("/api/register",async(req,res)=>{
-    const {first_name, last_name, email, age, password, rol}= req.body
-    const emailTofind = email;
-    const exists = await usersModel.findEmail ({email:emailTofind})
-    if (exists) return res.status(400).send ({stattus:"error", error: "usuario ya existe"})
-    const newUser= {
-first_name,last_name, email, age, password, cart: carts.addCart(), rol};
-usersModel.addUser (newUser)
-const token = generateAndSetToken (res,email,password)
-res.send ({token})
-
-});
-
-
-//GET//
-
-/*//Ingreso Register http://localhost:8080/register
-app.get("/register", async (req, res) => { 
-    res.render("register", {
-        title: "Vista Register",
-    });
-})
-//Ingreso Profile http://localhost:8080/profile
-app.get("/profile", async (req, res) => { 
-    if (!req.session.emailUsuario) 
-    {
-        return res.redirect("/login")
+    const { email, password } = req.body;
+    const emailToFind = email;
+    const user = await users.findEmail({ email: emailToFind });
+    if (!user || user.password !== password) {
+      return res.status(401).json({ message: "Error de autenticación" });
     }
-    res.render("profile", {
-        title: "Vista Profile Admin",
-        first_name: req.session.nomUsuario,
-        last_name: req.session.apeUsuario,
-        email: req.session.emailUsuario,
-        rol: req.session.rolUsuario,
-
-    });
-})*/
-
-app.get ('/', (req, res) => {
-    res.sendFile ('html/index.html',{root: app.get ("views") });
+    const token = generateAndSetToken(res, email, password);
+    const userDTO = new UserDTO(user);
+    const prodAll = await products.get()
+    res.json({ token, user: userDTO, prodAll});
+  });
+app.post("/api/register", async(req,res)=>{
+    const {first_name, last_name, email,age, password, rol} = req.body
+    const emailToFind = email
+    const exists = await users.findEmail({ email: emailToFind })
+    if(exists) return res.status(400).send({status:"error", error: "Usuario ya existe"})
+    const newUser = {
+        first_name,
+        last_name,
+        email,
+        age,
+        password,
+        rol
+    };
+    users.addUser(newUser)
+    const token = generateAndSetToken(res, email, password) 
+    res.send({token}) 
+})
+app.get('/', (req, res) => {
+    res.sendFile('index.html', { root: app.get('views') });
 });
 app.get('/register', (req, res) => {
-    res.sendFile ('html/register.html',{root: app.get ("views") });
+    res.sendFile('register.html', { root: app.get('views') });
 });
-app.get('/current', passportCall ('jwt'), authorization ('user'), (req, res) => {
-    res.sendFile ('html/home.html',{root: app.get ("views") });
-});
+app.get('/current',passportCall('jwt', { session: false }), authorization('user'),(req,res) =>{
+    authorization('user')(req, res,async() => {      
+        const prodAll = await products.get();
+        res.render('home', { products: prodAll });
+    });
+})
+app.get('/admin',passportCall('jwt'), authorization('user'),(req,res) =>{
+    authorization('user')(req, res,async() => {    
+        const prodAll = await products.get();
+        res.render('admin', { products: prodAll });
+    });
+})

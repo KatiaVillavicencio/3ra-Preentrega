@@ -6,6 +6,7 @@ dotenv.config();
 export default {
  URI: process.env.URI,
  PORT : process.env.PORT,
+ PERSISTENCE: process.env.PERSISTENCE,
  
  PRIVATE_KEY_JWT: process.env.PRIVATE_KEY_JWT,
 
