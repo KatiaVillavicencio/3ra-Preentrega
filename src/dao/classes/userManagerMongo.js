@@ -89,7 +89,7 @@ extends usersModel
           return 'Error al eliminar el usuario';
         }
       }
-      async validateUser(param) {
+      /*async validateUser(param) {
         try 
         {
           const user = await UserManager.findOne({email: param});
@@ -104,7 +104,8 @@ extends usersModel
           console.error('Error al validar usuario', error);
           return 'Error al obtener el usuario';
         }
-      }
+      }*/
+
 // Validar email
 
       async findEmail(param) {
@@ -117,4 +118,15 @@ extends usersModel
       }
     }
 
+    findJWT = async (filterFunction) => {
+      try
+      {
+          const user = await usersModel.find(filterFunction)
+          return user
+      }catch(error){
+          console.error('Error al obtener filtro JWT:', error);
+          return 'Error al obtener filtro JWT';
+
     }
+  }
+}

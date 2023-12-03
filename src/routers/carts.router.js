@@ -1,11 +1,13 @@
 import { Router } from 'express';
-const routerC = Router()
 import CartManager from "../dao/classes/cartManagerMongo.js"
 import ProductManager from "../dao/classes/productManagerMongo.js"
+import { ticketService, cartService } from "../repositories/index.js";
+import CartDTO from "../dto/cart.dto.js";
+import TicketDTO from "../dto/ticket.dto.js";
 
-
+const routerC = Router()
 const cm = new CartManager()
-const pm = new ProductManager()
+//const pm = new ProductManager()//
 
 //ENDPOINTS
 
@@ -27,7 +29,16 @@ routerC.get("/",async(req,res)=>{
  
  // Crear un carrito
 
- routerC.post('/', async (req, res) => {
+ routerC.post("/", async (req, res) => {
+  let { products } = req.body
+
+  let cart = new CartDTO({ products })
+  console.log(cart)
+  let result = await cartService.createCart(cart)
+  console.log(result)
+})
+
+ /*routerC.post('/', async (req, res) => {
    try {
        const { obj } = req.body;
  
@@ -52,14 +63,39 @@ routerC.get("/",async(req,res)=>{
        console.log(err);
        res.status(500).send(' Error del servidor');
    }
- });
+ });*/
  
  
  
-  // ENDPOINT para colocar la cantidad de un producto
+  // ENDPOINT para compra
 
- 
- routerC.post("/:cid/products/:pid", async (req, res) => {
+  routerC.post("/:cid/purchase", async (req, res) => {
+    try {
+        let id_cart = req.params.cid;
+        const productos = req.body.productos;
+        const correo = req.body.correo;
+        console.log(correo)
+        let cart = cartService.validateCart(id_cart)
+        if (!cart) {
+            return { error: "No se encontró el carrito con el ID proporcionado" };
+        }
+        let validaStock = cartService.validateStock({productos})
+
+        if (validaStock) {
+            let totalAmount = await cartService.getAmount({productos})
+            const ticketFormat = new TicketDTO({amount:totalAmount, purchaser:correo});
+            const result = await ticketService.createTicket(ticketFormat);
+        } else {
+            console.log("No hay suficiente stock para realizar la compra");
+        }
+    } catch (error) {
+        console.error("Error al procesar la compra:", error);
+        return res.status(500).json({ error: "Error interno al procesar la compra" });
+    }
+})
+
+export default routerC
+ /*routerC.post("/:cid/products/:pid", async (req, res) => {
      const { cid, pid } = req.params;
      const { quantity } = req.body;
    
@@ -185,4 +221,4 @@ routerC.delete('/:cid/product/:pid', async (req, res) => {
     }
   });
 
-export default routerC
+export default routerC*/

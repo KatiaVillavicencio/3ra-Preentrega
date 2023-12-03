@@ -57,7 +57,7 @@ connectToDB();
 
 //connect session login//
 //app.use (configSession)//
-/*app.use(
+app.use(
     session({
         store: MongoStore.create({
             mongoUrl: process.env.URI,
@@ -70,7 +70,7 @@ connectToDB();
         resave: false,
         saveUninitialized: false,
     })
-)*/
+)
 
 //JWT//
 
