@@ -21,7 +21,7 @@ export default connectToDB;
 
 //Session//
 
-export function configSession  () {
+/*export function configSession  () {
     return session({
         store: MongoStore.create({
             mongoUrl: process.env.URI,
@@ -35,7 +35,7 @@ export function configSession  () {
         resave: false,
         saveUninitialized: false,
     });
-}
+}*/
 
 
 

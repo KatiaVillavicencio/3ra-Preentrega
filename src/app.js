@@ -6,7 +6,7 @@ import MongoStore from "connect-mongo";
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
 
-import connectToDB, { configSession } from "./config/server.config.js"
+import connectToDB from "./config/server.config.js"
 import {__dirname, authorization, passportCall} from "./utils.js"
 import initializePassword from './config/passport.config.js';
 
@@ -40,6 +40,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser())
 
+const httpServer=app.listen(PORT,()=>{
+    console.log(`server escuchandoooo en ${PORT}`)
+})
+
 //estructura de handlebars
 app.engine("handlebars",handlebars.engine())
 app.set('view engine', 'handlebars');
@@ -48,21 +52,31 @@ app.set("views",__dirname+"/views")
 //connect 
 connectToDB();
 
-const httpServer=app.listen(PORT,()=>{
-    console.log(`server escuchandoooo en ${PORT}`)
-})
  const users = new UserManager
- const carts = new CartManager
  const products = new ProductManager
 
 //connect session login//
-app.use (configSession);
+//app.use (configSession)//
+/*app.use(
+    session({
+        store: MongoStore.create({
+            mongoUrl: process.env.URI,
+            mongoOptions:{
+            useNewUrlParser: true,
+            useUnifiedTopology: true},
+            ttl: 15
+        }),
+        secret: "ClaveSecreta",
+        resave: false,
+        saveUninitialized: false,
+    })
+)*/
 
 //JWT//
 
 const jwtOptions = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey:process.env.PRIVATE_KEY_JWT
+    secretOrKey: process.env.PRIVATE_KEY_JWT,
 }
 
 passport.use (
@@ -83,13 +97,6 @@ initializePassword();
 app.use (passport.initialize());
 app.use (passport.session());
 
-
-//socket server
-const socketServer = new Server(httpServer)
-socketProducts(socketServer)
-socketChat(socketServer)
-socketEmail(socketServer)
-
 //Rutas
 app.use('/', routerV); //view//
 app.use("api/products", routerP)
@@ -97,6 +104,14 @@ app.use("api/carts", routerC)
 app.use("/users", userRouter)
 //app.use('/api/sessions',userRouter)//
 //app.use("/tickets", ticketsRouter)//
+
+
+//socket server
+const socketServer = new Server(httpServer)
+socketProducts(socketServer)
+socketChat(socketServer)
+socketEmail(socketServer)
+
 
 
 //Front
