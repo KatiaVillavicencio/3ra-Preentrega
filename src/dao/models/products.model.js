@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import mongoosePaginate from 'mongoose-paginate-v2'
 
 const productCollection="products"
+
 const productSchema= new mongoose.Schema({
     title: {
         type: String,
@@ -24,13 +25,15 @@ const productSchema= new mongoose.Schema({
         required: true
     },
     category: {
-        type: String,
+        type: String, max: 50 ,
         required: true
     },
     status: {
         type: Boolean,
         default: true 
-    }
+    },
+    availability: 
+    { type: String, enum: ['in_stock', 'out_of_stock'] }
 })
 productSchema.plugin(mongoosePaginate)
 
