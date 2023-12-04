@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     email: String,
     age: Number,
     password: String,
-    cart: [
+    /*cart: [
         {
             type:[
         
@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
             ]
 
         },
-    ],
+    ],*/
     rol: String
 })
 
