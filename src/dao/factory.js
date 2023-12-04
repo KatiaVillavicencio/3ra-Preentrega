@@ -1,20 +1,24 @@
 import mongoose from "mongoose";
 import config from '../config/config.js'
-export let Carts
-export let Products
-export let Users
-export let Tickets
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+export class Carts {}
+export class Products {}
+export class Users {}
+export class Tickets {}
 switch (config.PERSISTENCE) {
     case "MONGO":
-        const connection = mongoose.connect(config.URI)
-        const { default: CartsManager } = await import('./classes/cartManagerMongo.js')
-        const { default: ProductManager } = await import('./classes/productManagerMongo.js')
-        const { default: UserManager } = await import('./classes/userManagerMongo.js')
-        const { default: Tickets } = await import('./classes/ticketManagerMongo.js')
-        Carts = CartsManager
-        Products = ProductManager
-        Users = UserManager
-        Tickets = Tickets
+        const connection = mongoose.connect(process.env.URI)
+        const { default: CartManagerMongo } = await import('./classes/cartManagerMongo.js')
+        const { default: ProductManagerMongo   } = await import('./classes/productManagerMongo.js')
+        const { default: UserManagerMongo } = await import('./classes/userManagerMongo.js')
+        const { default: TicketManagerMongo } = await import('./classes/ticketManagerMongo.js')
+        Carts = CartManagerMongo
+        Products = ProductManagerMongo 
+        Users = UserManagerMongo 
+        Tickets = TicketManagerMongo
         break;
     case "MEMORY":
         const { default: CartsMemory } = await import("./memory/carts.memory.js")

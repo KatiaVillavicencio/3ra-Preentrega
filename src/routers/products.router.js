@@ -1,7 +1,10 @@
 import { Router } from 'express';
-const routerP = Router()
-
+import ProductDTO from "../dto/product.dto.js";
+import { productService } from "../repositories/index.js";
 import ProductManager from '../dao/classes/productManagerMongo.js';
+
+
+const routerP = Router()
 const pm = new ProductManager()
 
 //ENDPOINTS
@@ -77,10 +80,10 @@ routerP.get('/', async (req, res) => {
   });
 
   routerP.post("/", async (req, res) => {
-    const obj=req.body
-    const newproduct = await pm.addProduct(obj);
-     res.json({ status: "success", newproduct });
-  });
+    let { description, image, price, stock, category, availability } = req.body
+    let prod = new ProductDTO({ description, image, price, stock, category, availability })
+    let result = await productService.createProduct(prod)
+})
 
   routerP.put("/:pid", async (req, res) => {
     const {pid}=req.params
