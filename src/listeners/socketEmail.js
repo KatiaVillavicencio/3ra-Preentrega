@@ -23,6 +23,7 @@ const socketEmail = (socketServer, products, transport) => {
         });
 
         socket.on("newEmail", async ({ email, comment }) => {
+            try {
             let result = await transport.sendMail({
                 from: 'Chat Correo <katiamvv5@gmail.com>',
                 to: email,
@@ -35,6 +36,10 @@ const socketEmail = (socketServer, products, transport) => {
                 attachments: []
             });
             socketServer.emit("success", "Correo enviado correctamente");
+
+        } catch (error){
+            console.error("Error al enviar el correo:", error.message);
+        }
         });
 
         // Enviar información al cliente

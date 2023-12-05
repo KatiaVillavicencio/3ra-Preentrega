@@ -17,7 +17,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     const rol = rolInput.value;
     try 
     {
-        const response = await fetch("/api/register",{
+        const response = await fetch("/register",{
             method: "POST",
             body: JSON.stringify({first_name, last_name, email, age, password, rol}),
             headers: {

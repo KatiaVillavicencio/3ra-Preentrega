@@ -5,10 +5,10 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
-
 import connectToDB from "./config/server.config.js"
 import {__dirname, authorization, passportCall} from "./utils.js"
 import initializePassword from './config/passport.config.js';
+import mongoose from 'mongoose'
 
 //routes
 import routerP from './routers/products.router.js';
@@ -57,7 +57,7 @@ connectToDB();
 
 //connect session login//
 //app.use (configSession)//
-app.use(
+/*app.use(
     session({
         store: MongoStore.create({
             mongoUrl: process.env.URI,
@@ -70,7 +70,11 @@ app.use(
         resave: false,
         saveUninitialized: false,
     })
-)
+)*/
+mongoose.connect(process.env.URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+});
 
 //JWT//
 
@@ -111,7 +115,6 @@ const socketServer = new Server(httpServer)
 socketProducts(socketServer)
 socketChat(socketServer)
 socketEmail(socketServer)
-
 
 
 //Front
