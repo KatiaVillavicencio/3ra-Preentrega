@@ -10,11 +10,13 @@ import {__dirname, authorization, passportCall} from "./utils.js"
 import initializePassword from './config/passport.config.js';
 import mongoose from 'mongoose'
 
+
 //routes
 import routerP from './routers/products.router.js';
 import routerC from './routers/carts.router.js';
 import routerV from './routers/views.router.js';
 import userRouter from './routers/user.router.js';
+import ticketRouter from './routers/tickets.router.js';
 
 //socket.io
 import socketProducts from "./listeners/socketProducts.js"
@@ -57,7 +59,7 @@ connectToDB();
 
 //connect session login//
 //app.use (configSession)//
-/*app.use(
+app.use(
     session({
         store: MongoStore.create({
             mongoUrl: process.env.URI,
@@ -70,11 +72,11 @@ connectToDB();
         resave: false,
         saveUninitialized: false,
     })
-)*/
-mongoose.connect(process.env.URI, {
+)
+/*mongoose.connect(process.env.URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-});
+});*/
 
 //JWT//
 
@@ -106,8 +108,9 @@ app.use('/', routerV); //view//
 app.use("api/products", routerP)
 app.use("api/carts", routerC)
 app.use("/users", userRouter)
+app.use("/tickets", ticketRouter)
 //app.use('/api/sessions',userRouter)//
-//app.use("/tickets", ticketsRouter)//
+
 
 
 //socket server

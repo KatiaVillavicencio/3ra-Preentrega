@@ -10,6 +10,22 @@ const getAllCarts = async (req, res) => {
     }
 };
 
+const getStock = async (req, res) => {
+    try {
+        res.status(200).send({ status: "success", payload: await cartsService.getStock() });
+    } catch (error) {
+        res.status(404).send({ status: "Error", error: "Carritos no encontrados" });
+    }
+};
+const getAmount = async (req, res) => {
+    try {
+        res.status(200).send({ status: "success", payload: await cartsService.getAmount() });
+    } catch (error) {
+        res.status(404).send({ status: "Error", error: "Carritos no encontrados" });
+    }
+};
+
+
 const getCartById = async (req, res) => {
     try {
         res.status(200).send({ status: "success", payload: await cartsService.getById(req.params.cid) });
@@ -57,5 +73,7 @@ module.exports = {
     addProductInCart,
     deleteProductInCart,
     updateProduct,
+    getStock,
+    getAmount,
 };
 

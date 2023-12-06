@@ -1,10 +1,10 @@
-import ticketsModel from "../models/ticket.model.js"
+import ticketsModel from "../models/tickets.model.js"
 
 
 export default class Tickets {
     constructor() {
 
-    }
+    }n
 
     get = async () => {
         let tickets = await ticketsModel.find()

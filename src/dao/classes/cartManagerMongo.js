@@ -81,7 +81,7 @@ class CartManager {
         console.error("Error al calcular el monto:", error);
         return 0; // O manejar el error de otra manera según tus necesidades
     }
-};n
+};
 
     getCartById = async (cartId) => {
 
