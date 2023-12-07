@@ -4,10 +4,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export class Carts {}
-export class Products {}
-export class Users {}
-export class Tickets {}
+export let Carts 
+export let Products 
+export let Users 
+export let Tickets 
 switch (config.PERSISTENCE) {
     case "MONGO":
         const connection = mongoose.connect(process.env.URI)
